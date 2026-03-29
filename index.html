@@ -205,14 +205,6 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
 .footer-logo{font-weight:800;font-size:1.05rem;margin-bottom:6px;letter-spacing:-.02em}
 .footer-copy{font-size:.78rem;color:var(--text-muted)}
 
-/* HIDE TIDIO DEFAULT FLOATING BUTTON */
-#tidio-chat-iframe{display:none!important}
-#tidio-chat{display:none!important}
-
-/* DEMO EMBED */
-.demo-embed{height:500px;background:var(--bg-elevated)}
-@media(max-width:768px){.demo-embed{height:400px}}
-
 @media(max-width:768px){.services-grid{grid-template-columns:1fr}.reviews-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -390,15 +382,17 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
     <div class="section-inner" style="text-align:center">
       <div class="section-label" style="text-align:center">Live Demo</div>
       <div class="section-title" style="margin:0 auto 12px;text-align:center">See our AI in action.</div>
-      <div class="section-desc" style="margin:0 auto 48px;text-align:center">This is a live Parker AI chatbot — the same kind we build for our clients. Go ahead, ask it anything.</div>
+      <div class="section-desc" style="margin:0 auto 48px;text-align:center">This is a sample of what a Parker AI chatbot looks like on your website. Try asking about our services, pricing, or how we can help.</div>
       <div class="demo-container">
         <div class="demo-header"><div class="demo-dots"><span></span><span></span><span></span></div><div class="demo-header-title">parker.ai — live agent</div></div>
-        <div class="demo-embed" id="tidioEmbed">
-          <iframe 
-            src="https://www.tidio.com/talk/knix8kqq3bjilpndohbnm6po07cq9tmx" 
-            style="width:100%;height:100%;border:none;border-radius:0 0 14px 14px"
-            title="Parker AI Live Chat Demo">
-          </iframe>
+        <div class="demo-body">
+          <div class="demo-messages" id="demoMessages">
+            <div class="demo-msg bot">Hey there! 👋 I'm Parker AI, your intelligent assistant. Ask me about our services or how AI automation can help your business!</div>
+          </div>
+          <div class="demo-input-row">
+            <input class="demo-input" id="demoInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDemo()}">
+            <button class="demo-send" onclick="sendDemo()">→</button>
+          </div>
         </div>
       </div>
     </div>
@@ -498,6 +492,58 @@ document.querySelectorAll('.mobile-menu button[data-page]').forEach(b=>b.addEven
 // FADE OBSERVER
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:.15});
 document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+
+// DEMO PAGE CHAT
+const demoResponses={
+  default:"Great question! Parker AI builds custom AI agents, email automations, voice assistants, and lead gen systems for businesses. Want to book a free consultation to learn more?",
+  pricing:"All our pricing is custom based on your specific needs. We start every engagement with a free consultation where we map out exactly what you need and give you a clear quote. Want to book a call?",
+  services:"We offer: AI Agents, Email Automations, Voice Assistants, Lead Generation, Workflow Automation, and Chatbot/Receptionist Bots. Which one interests you?",
+  lead:"Our lead gen system automatically finds, enriches, and contacts your ideal prospects. It runs 24/7 and integrates with your CRM. Book a free consultation and we'll show you how it works for your business.",
+  agent:"Our AI agents handle customer conversations, qualify leads, book meetings, and answer FAQs — all without human intervention. They work 24/7 and learn from every interaction.",
+  hello:"Hey! 👋 Welcome to Parker AI. I can tell you about our services or how AI automation can transform your business. What are you curious about?",
+  email:"Our email automation system handles outbound prospecting, lead nurturing, follow-ups, and meeting booking — all on autopilot. Clients typically see 3x more booked calls within the first month.",
+  voice:"Our voice assistants answer calls, route inquiries, schedule appointments, and sound completely natural. Perfect for businesses that miss calls after hours. Want to hear how it could work for yours?",
+  chatbot:"We build intelligent chatbots that live on your website 24/7 — engaging visitors, answering questions, qualifying leads, and booking meetings while you sleep. Like this one, but way smarter!",
+  workflow:"We connect all your tools — CRM, email, calendar, Slack, you name it — and automate the repetitive stuff your team wastes hours on every week. Most clients save 10-15 hours per week.",
+};
+function getReply(msg){
+  const m=msg.toLowerCase();
+  if(m.includes('pric')||m.includes('cost')||m.includes('how much')||m.includes('money'))return demoResponses.pricing;
+  if(m.includes('service')||m.includes('offer')||m.includes('what do you'))return demoResponses.services;
+  if(m.includes('lead'))return demoResponses.lead;
+  if(m.includes('agent'))return demoResponses.agent;
+  if(m.includes('email'))return demoResponses.email;
+  if(m.includes('voice')||m.includes('phone')||m.includes('call'))return demoResponses.voice;
+  if(m.includes('chat')||m.includes('bot')||m.includes('receptionist'))return demoResponses.chatbot;
+  if(m.includes('workflow')||m.includes('automat'))return demoResponses.workflow;
+  if(m.includes('hi')||m.includes('hello')||m.includes('hey')||m.includes('sup')||m.includes('yo'))return demoResponses.hello;
+  return demoResponses.default;
+}
+function sendDemo(){
+  const input=document.getElementById('demoInput');
+  const val=input.value.trim();
+  if(!val)return;
+  const msgs=document.getElementById('demoMessages');
+  const userMsg=document.createElement('div');
+  userMsg.className='demo-msg user';
+  userMsg.textContent=val;
+  msgs.appendChild(userMsg);
+  input.value='';
+  msgs.scrollTop=msgs.scrollHeight;
+  const typing=document.createElement('div');
+  typing.className='typing-indicator';
+  typing.innerHTML='<span></span><span></span><span></span>';
+  msgs.appendChild(typing);
+  msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{
+    typing.remove();
+    const botMsg=document.createElement('div');
+    botMsg.className='demo-msg bot';
+    botMsg.textContent=getReply(val);
+    msgs.appendChild(botMsg);
+    msgs.scrollTop=msgs.scrollHeight;
+  },1200);
+}
 
 // CONTACT FORM — set redirect URL
 document.getElementById('formRedirect').value = window.location.href.split('?')[0] + '?submitted=true';
